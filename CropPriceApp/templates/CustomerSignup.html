@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Registration - Fresh Produce Purchase</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial; background-color: #f4f4f4; }
+        .main { width: 1000px; margin: 0 auto; background: white; }
+        .main_resize { padding: 20px; }
+        .header { margin-bottom: 20px; }
+        .logo h1 { color: #4CAF50; }
+        .logo span { font-size: 24px; }
+        .logo small { font-size: 14px; color: #666; }
+        .content_bg { padding: 20px; }
+        .menu_nav { margin-bottom: 20px; }
+        .menu_nav ul { list-style: none; padding: 0; margin: 0; display: flex; background-color: #4CAF50; border-radius: 5px; }
+        .menu_nav ul li { display: inline-block; }
+        .menu_nav ul li a { display: block; padding: 12px 20px; text-decoration: none; color: white; }
+        .menu_nav ul li a:hover { background-color: #45a049; border-radius: 5px; }
+        .hbg { margin-bottom: 20px; }
+        .hbg img { width: 100%; height: auto; border-radius: 5px; }
+        .registration-form { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; color: #333; }
+        .btn-register { background-color: #ff9800; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; }
+        .btn-register:hover { background-color: #f57c00; }
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="main_resize">
+        <div class="header">
+            <div class="logo">
+                <h1><span>Fresh Produce Purchase Supply Chains</span><small>Customer Registration</small></h1>
+            </div>
+        </div>
+        <div class="content">
+            <div class="content_bg">
+                <div class="menu_nav">
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li><a href="{% url 'AdminLogin' %}">Admin Login</a></li>
+                        <li><a href="{% url 'FarmerLogin' %}">Farmer Login</a></li>
+                        <li><a href="{% url 'CustomerLogin' %}">Customer Login</a></li>
+                        <li><a href="{% url 'CustomerSignup' %}" style="background-color: #ff9800;">Customer Register</a></li>
+                        <li><a href="{% url 'AvailableProducts' %}">Browse Products</a></li>
+                    </ul>
+                </div>
+                <div class="hbg">
+                    <img src="{% static 'images/header_images.jpg' %}" width="915" height="286" alt="" />
+                </div>
+
+                <div class="registration-form">
+                    <h2 class="text-center mb-4">Customer Registration</h2>
+                    
+                    {% if data %}
+                        <div class="alert {% if 'success' in data %}alert-success{% else %}alert-danger{% endif %}">
+                            {{ data }}
+                        </div>
+                    {% endif %}
+
+                    <form action="{% url 'CustomerSignupAction' %}" method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label>Full Name:</label>
+                            <input type="text" name="t1" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email Address:</label>
+                            <input type="email" name="t2" class="form-control" placeholder="Enter your email" required>
+                            <small class="text-muted">We'll never share your email with anyone else.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="password" name="t3" class="form-control" placeholder="Create a password" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Confirm Password:</label>
+                            <input type="password" name="t9" class="form-control" placeholder="Confirm your password" required onkeyup="validatePassword()">
+                            <small id="password-error" class="text-danger" style="display: none;">Passwords do not match!</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Contact Number:</label>
+                            <input type="text" name="t4" class="form-control" placeholder="Enter your 10-digit mobile number" pattern="[0-9]{10}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Delivery Address:</label>
+                            <textarea name="t5" class="form-control" rows="3" placeholder="Enter your complete address" required></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>City:</label>
+                                <input type="text" name="t6" class="form-control" placeholder="City" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>State:</label>
+                                <select name="t7" class="form-control" required>
+                                    <option value="">Select State</option>
+                                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                    <option value="Bihar">Bihar</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Gujarat">Gujarat</option>
+                                    <option value="Haryana">Haryana</option>
+                                    <option value="Karnataka">Karnataka</option>
+                                    <option value="Kerala">Kerala</option>
+                                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                    <option value="Maharashtra">Maharashtra</option>
+                                    <option value="Punjab">Punjab</option>
+                                    <option value="Rajasthan">Rajasthan</option>
+                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                    <option value="Telangana">Telangana</option>
+                                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                    <option value="West Bengal">West Bengal</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Pincode:</label>
+                            <input type="text" name="t8" class="form-control" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" required>
+                        </div>
+                        
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn-register">Register as Customer</button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a href="{% url 'CustomerLogin' %}" style="color: #4CAF50;">Login here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validatePassword() {
+        var password = document.getElementsByName('t3')[0].value;
+        var confirmPassword = document.getElementsByName('t9')[0].value;
+        var errorSpan = document.getElementById('password-error');
+        var submitBtn = document.querySelector('button[type="submit"]');
+        
+        if (password != confirmPassword) {
+            errorSpan.style.display = 'block';
+            submitBtn.disabled = true;
+        } else {
+            errorSpan.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

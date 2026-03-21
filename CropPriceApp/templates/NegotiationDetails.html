@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Negotiation Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .bid-history { max-height: 400px; overflow-y: auto; }
+        .farmer-bid { background-color: #e3f2fd; margin: 10px 0; padding: 10px; border-radius: 5px; border-left: 4px solid #2196f3; }
+        .customer-bid { background-color: #e8f5e9; margin: 10px 0; padding: 10px; border-radius: 5px; border-left: 4px solid #4caf50; }
+        .current-bid { border: 2px solid #ff9800; }
+        .timer-large { font-size: 24px; font-weight: bold; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4>Negotiation #{{ negotiation.0 }}</h4>
+                        <span class="badge badge-light">{{ negotiation.8 }}</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Product Details -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Product Information</h5>
+                                <p><strong>Crop:</strong> {{ negotiation.4 }} {{ negotiation.13|default:'' }}</p>
+                                <p><strong>Farmer:</strong> {{ negotiation.2 }}</p>
+                                <p><strong>Customer:</strong> {{ negotiation.11 }} ({{ negotiation.3 }})</p>
+                                <p><strong>Original Price:</strong> ₹{{ negotiation.14|default:negotiation.5 }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Current Status</h5>
+                                <p><strong>Current Price:</strong> ₹{{ negotiation.6 }}</p>
+                                <p><strong>Quantity:</strong> {{ negotiation.7 }} {{ negotiation.8 }}</p>
+                                <p><strong>Delivery Date:</strong> {{ negotiation.10|date:'d M Y' }}</p>
+                                <p><strong>Expiry:</strong> <span class="timer-large" data-expiry="{{ negotiation.11|date:'Y-m-d H:i:s' }}">{{ negotiation.11 }}</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-4">
+                            {% if is_farmer and negotiation.8 == 'active' %}
+                                <button onclick="showFarmerCounterForm()" class="btn btn-warning">Counter Offer</button>
+                                <button onclick="acceptNegotiation({{ negotiation.0 }})" class="btn btn-success">Accept Current Offer</button>
+                                <button onclick="rejectNegotiation({{ negotiation.0 }})" class="btn btn-danger">Reject</button>
+                            {% elif not is_farmer and negotiation.8 == 'active' %}
+                                <button onclick="showCustomerCounterForm()" class="btn btn-warning">Make Offer</button>
+                                <button onclick="acceptFarmerOffer({{ negotiation.0 }})" class="btn btn-success">Accept Farmer's Offer</button>
+                                <button onclick="cancelCustomerNegotiation({{ negotiation.0 }})" class="btn btn-danger">Cancel</button>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Counter Offer Forms -->
+                        <div id="farmer-counter-form" style="display: none; margin-top: 20px;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Make Counter Offer</h5>
+                                    <form onsubmit="submitFarmerCounterOffer(event, {{ negotiation.0 }})">
+                                        <div class="form-group">
+                                            <label>Price (₹/{{ negotiation.8 }})</label>
+                                            <input type="number" step="0.01" name="offered_price" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Quantity ({{ negotiation.8 }})</label>
+                                            <input type="number" step="0.01" name="offered_quantity" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Message</label>
+                                            <textarea name="message" class="form-control" placeholder="Optional message"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Send Offer</button>
+                                        <button type="button" onclick="hideFarmerCounterForm()" class="btn btn-secondary">Cancel</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="customer-counter-form" style="display: none; margin-top: 20px;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Make Counter Offer</h5>
+                                    <form onsubmit="submitCustomerCounterOffer(event, {{ negotiation.0 }})">
+                                        <div class="form-group">
+                                            <label>Your Offer (₹/{{ negotiation.8 }})</label>
+                                            <input type="number" step="0.01" name="offered_price" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Quantity ({{ negotiation.8 }})</label>
+                                            <input type="number" step="0.01" name="offered_quantity" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Message</label>
+                                            <textarea name="message" class="form-control" placeholder="Optional message"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Send Offer</button>
+                                        <button type="button" onclick="hideCustomerCounterForm()" class="btn btn-secondary">Cancel</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bid History -->
+                        <div class="mt-5">
+                            <h5>Negotiation History</h5>
+                            <div class="bid-history">
+                                {% for bid in bids %}
+                                    <div class="{% if bid.2 == 'farmer' %}farmer-bid{% else %}customer-bid{% endif %} {% if bid.7 %}current-bid{% endif %}">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>{{ bid.3 }} ({{ bid.2 }})</strong>
+                                            <small class="text-muted">{{ bid.6|date:'d M Y H:i' }}</small>
+                                        </div>
+                                        <p class="mt-2 mb-1">
+                                            <strong>Offer:</strong> ₹{{ bid.5 }} per {{ negotiation.8 }} × {{ bid.6 }} {{ negotiation.8 }} = ₹{{ bid.5|floatformat:2|add:bid.6|floatformat:2 }}
+                                        </p>
+                                        {% if bid.7 %}
+                                            <p><strong>Message:</strong> {{ bid.7 }}</p>
+                                        {% endif %}
+                                        {% if bid.8 %}
+                                            <span class="badge badge-warning">Current Offer</span>
+                                        {% endif %}
+                                    </div>
+                                {% empty %}
+                                    <p>No bids yet</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Timer update
+        function updateTimer() {
+            $('.timer-large').each(function() {
+                var expiryTime = new Date($(this).data('expiry')).getTime();
+                var now = new Date().getTime();
+                var distance = expiryTime - now;
+                
+                if (distance < 0) {
+                    $(this).html('Expired');
+                } else {
+                    var hours = Math.floor(distance / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    $(this).html(hours + 'h ' + minutes + 'm ' + seconds + 's');
+                }
+            });
+        }
+        setInterval(updateTimer, 1000);
+        
+        function showFarmerCounterForm() {
+            $('#customer-counter-form').hide();
+            $('#farmer-counter-form').slideDown();
+        }
+        
+        function hideFarmerCounterForm() {
+            $('#farmer-counter-form').slideUp();
+        }
+        
+        function showCustomerCounterForm() {
+            $('#farmer-counter-form').hide();
+            $('#customer-counter-form').slideDown();
+        }
+        
+        function hideCustomerCounterForm() {
+            $('#customer-counter-form').slideUp();
+        }
+        
+        function submitFarmerCounterOffer(event, negotiationId) {
+            event.preventDefault();
+            var form = $('#farmer-counter-form form');
+            var formData = form.serializeArray();
+            formData.push({name: 'negotiation_id', value: negotiationId});
+            
+            $.post('/FarmerCounterOffer/', formData, function(response) {
+                if (response.success) {
+                    alert('Counter offer sent successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            });
+        }
+        
+        function submitCustomerCounterOffer(event, negotiationId) {
+            event.preventDefault();
+            var form = $('#customer-counter-form form');
+            var formData = form.serializeArray();
+            formData.push({name: 'negotiation_id', value: negotiationId});
+            
+            $.post('/CustomerCounterOffer/', formData, function(response) {
+                if (response.success) {
+                    alert('Counter offer sent successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            });
+        }
+        
+        function acceptNegotiation(negotiationId) {
+            if (confirm('Accept this negotiation? This will create a binding contract.')) {
+                $.post('/AcceptNegotiation/', {negotiation_id: negotiationId}, function(response) {
+                    if (response.success) {
+                        alert('Negotiation accepted! Contract created. Transaction ID: ' + response.transaction_id);
+                        window.location.href = '/FarmerBiddingDashboard/';
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                });
+            }
+        }
+        
+        function acceptFarmerOffer(negotiationId) {
+            if (confirm('Accept farmer\'s offer? This will create a binding contract.')) {
+                $.post('/AcceptFarmerOffer/', {negotiation_id: negotiationId}, function(response) {
+                    if (response.success) {
+                        alert('Offer accepted! Contract created. Transaction ID: ' + response.transaction_id);
+                        window.location.href = '/CustomerBiddingDashboard/';
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                });
+            }
+        }
+        
+        function rejectNegotiation(negotiationId) {
+            var reason = prompt('Reason for rejection:');
+            if (reason !== null) {
+                $.post('/RejectNegotiation/', {negotiation_id: negotiationId, reason: reason}, function(response) {
+                    if (response.success) {
+                        alert('Negotiation rejected');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                });
+            }
+        }
+        
+        function cancelCustomerNegotiation(negotiationId) {
+            if (confirm('Cancel this negotiation?')) {
+                $.post('/CancelNegotiation/', {negotiation_id: negotiationId}, function(response) {
+                    if (response.success) {
+                        alert('Negotiation cancelled');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

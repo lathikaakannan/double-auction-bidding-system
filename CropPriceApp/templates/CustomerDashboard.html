@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar { background-color: #4CAF50; overflow: hidden; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .container { padding: 20px; }
+        .card { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'CustomerDashboard' %}" style="background-color: #45a049;">Dashboard</a>
+        <a href="{% url 'AvailableProducts' %}">Available Products</a>
+		<!-- Bidding Dropdown Menu for Customers -->
+    <div class="dropdown">
+        <a href="#" class="dropdown-toggle">Bidding <span class="caret">▼</span></a>
+        <div class="dropdown-content">
+            <a href="{% url 'CustomerBiddingDashboard' %}">Bidding Dashboard</a>
+            <a href="{% url 'CustomerBiddingDashboard' %}#active">My Negotiations</a>
+            <a href="{% url 'CustomerBiddingDashboard' %}#products">Start Bidding</a>
+            <a href="{% url 'CustomerBiddingDashboard' %}#contracts">My Contracts</a>
+        </div>
+    </div>
+        <a href="{% url 'MyOrders' %}">My Orders</a>
+        <a href="{% url 'CustomerLogin' %}" style="float:right;">Logout</a>
+    </div>
+<style>
+    /* Same dropdown styles as above, but with blue hover for customer */
+    .dropdown:hover .dropdown-toggle {
+        background-color: #0b7dda !important;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #2196F3 !important;
+        color: white !important;
+    }
+</style>
+    <div class="container">
+        <h2>Welcome, {{ customer_name }}!</h2>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Browse Products</h5>
+                        <p class="card-text">View all available products from farmers and place orders.</p>
+                        <a href="{% url 'AvailableProducts' %}" class="btn btn-success">Browse Products</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">My Orders</h5>
+                        <p class="card-text">Track your orders and view order history.</p>
+                        <a href="{% url 'MyOrders' %}" class="btn btn-primary">View Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

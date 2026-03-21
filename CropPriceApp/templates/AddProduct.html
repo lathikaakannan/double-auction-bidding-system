@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial; background-color: #f4f4f4; }
+        .navbar { background-color: #4CAF50; overflow: hidden; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; }
+        .btn-submit { background-color: #4CAF50; color: white; }
+        .required-field::after { content: " *"; color: red; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'FarmerDashboard' %}">Dashboard</a>
+        <a href="{% url 'AddProduct' %}" style="background-color: #45a049;">Add Product</a>
+        <a href="{% url 'MyProducts' %}">My Products</a>
+        <a href="{% url 'FarmerOrders' %}">Orders</a>
+        <a href="{% url 'PredictCropPrices' %}">Predict Prices</a>
+        <a href="{% url 'FarmerLogin' %}" style="float:right;">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Add New Product</h2>
+        
+        {% if data %}
+        <div class="alert alert-success">{{ data }}</div>
+        {% endif %}
+
+        <form action="{% url 'AddProductAction' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="required-field">Crop Name:</label>
+                {{ crop_dropdown|safe }}
+            </div>
+            <div class="form-group">
+                <label>Variety (Optional):</label>
+                <input type="text" name="variety" class="form-control" placeholder="e.g., Basmati, Hybrid">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label class="required-field">Quantity:</label>
+                    <input type="number" name="quantity" step="0.01" min="0.01" class="form-control" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="required-field">Unit:</label>
+                    <select name="unit" class="form-control" required>
+                        <option value="">Select Unit</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="quintal">Quintal (100kg)</option>
+                        <option value="ton">Ton</option>
+                        <option value="bag">Bag</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="required-field">Selling Price (per unit):</label>
+                <input type="number" name="selling_price" step="0.01" min="1" class="form-control" required>
+                <small class="text-muted">Enter your selling price in ₹</small>
+            </div>
+            <div class="form-group">
+                <label class="required-field">District:</label>
+                {{ district_dropdown|safe }}
+                <small class="text-muted">Select your district from the list</small>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-success btn-block">Add Product</button>
+            </div>
+        </form>
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'MyProducts' %}" class="btn btn-info">View My Products</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

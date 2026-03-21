@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Bidding Dashboard - Crop Price Prediction & Bidding System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: #4CAF50;
+        }
+        
+        .navbar a:first-child {
+            background-color: #2196F3;
+        }
+        
+        /* Dropdown Styles */
+        .dropdown {
+            float: left;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 12px 20px;
+            background-color: inherit;
+            font-family: inherit;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .dropdown:hover .dropbtn {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 5px;
+            top: 100%;
+            left: 0;
+        }
+        
+        .dropdown-content a {
+            float: none;
+            color: #333 !important;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            margin: 0;
+            border-radius: 0;
+            font-weight: normal;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #2196F3 !important;
+            color: white !important;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-card h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-card p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+        }
+        
+        .stat-icon i {
+            font-size: 30px;
+            color: white;
+        }
+        
+        .stat-info h3 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .stat-info p {
+            color: #666;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        
+        /* Notification Area */
+        .notification-area {
+            background-color: #e3f2fd;
+            border-left: 5px solid #2196F3;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .notification-area.show {
+            display: block;
+        }
+        
+        /* Tab Styles */
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 25px;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: #666;
+            font-weight: 600;
+            padding: 12px 25px;
+            margin-right: 10px;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background-color: #f8f9fa;
+            color: #2196F3;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #2196F3;
+            background-color: white;
+            border-bottom: 3px solid #2196F3;
+        }
+        
+        .nav-tabs .badge {
+            margin-left: 8px;
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        /* Product Cards */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .product-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .product-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .product-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .product-body {
+            padding: 20px;
+        }
+        
+        .product-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .product-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .price-tag {
+            background: #e8f5e9;
+            color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .savings-badge {
+            background: #ffeb3b;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .product-footer {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .btn-negotiate {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-negotiate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        /* Negotiation Cards */
+        .negotiation-card {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .negotiation-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .negotiation-header {
+            background: #fff3e0;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ffe0b2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .negotiation-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .negotiation-body {
+            padding: 20px;
+        }
+        
+        .bid-history {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .bid-message {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .farmer-bid {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .customer-bid {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .current-bid {
+            border: 2px solid #ff9800;
+        }
+        
+        .bid-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        /* Counter Offer Form */
+        .counter-offer-form {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .counter-offer-form.show {
+            display: block;
+        }
+        
+        /* Contracts Table */
+        .contracts-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .contracts-table table {
+            margin-bottom: 0;
+        }
+        
+        .contracts-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+        }
+        
+        .contracts-table td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+        }
+        
+        .modal-header .close {
+            color: white;
+        }
+        
+        .modal-body {
+            padding: 30px;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 20px;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .navbar a, .dropdown {
+                margin: 5px 0;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-card h1 {
+                font-size: 24px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="{% url 'CustomerDashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="{% url 'AvailableProducts' %}"><i class="fas fa-shopping-bag"></i> Available Products</a>
+        
+        <!-- Bidding Dropdown -->
+        <div class="dropdown">
+            <button class="dropbtn active">
+                <i class="fas fa-gavel"></i> Bidding <i class="fas fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="{% url 'CustomerBiddingDashboard' %}" class="active"><i class="fas fa-dashboard"></i> Bidding Dashboard</a>
+                <a href="#active-negotiations"><i class="fas fa-comments"></i> My Negotiations</a>
+                <a href="#available-products"><i class="fas fa-tag"></i> Start Bidding</a>
+                <a href="#contracts"><i class="fas fa-file-contract"></i> My Contracts</a>
+            </div>
+        </div>
+        
+        <a href="{% url 'MyOrders' %}"><i class="fas fa-truck"></i> My Orders</a>
+        <a href="{% url 'ViewSchemes' %}"><i class="fas fa-tasks"></i> View Schemes</a>
+        <a href="{% url 'CustomerLogout' %}" style="float:right; background-color: #f44336;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Welcome Card -->
+        <div class="welcome-card fade-in">
+            <h1><i class="fas fa-hand-peace"></i> Welcome, {{ customer_name }}!</h1>
+            <p>Negotiate prices directly with farmers and get the best deals on fresh produce.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ active_negotiations|length }}</h3>
+                    <p>Active Negotiations</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ contracts|length }}</h3>
+                    <p>Completed Contracts</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ available_products|length }}</h3>
+                    <p>Available for Bidding</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>
+                        {% with total=0 %}
+                            {% for contract in contracts %}
+                                {% with total=total|add:contract.8 %}
+                                {% endwith %}
+                            {% endfor %}
+                            ₹{{ total|default:0 }}
+                        {% endwith %}
+                    </h3>
+                    <p>Total Spent</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Area -->
+        <div id="notificationArea" class="notification-area">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bell mr-3" style="font-size: 24px; color: #2196F3;"></i>
+                <div id="notificationContent"></div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" id="biddingTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="products-tab" data-toggle="tab" href="#products" role="tab">
+                    <i class="fas fa-store"></i> Available Products
+                    <span class="badge badge-primary">{{ available_products|length }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="active-tab" data-toggle="tab" href="#active" role="tab">
+                    <i class="fas fa-clock"></i> My Active Negotiations
+                    <span class="badge badge-warning">{{ active_negotiations|length }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="contracts-tab" data-toggle="tab" href="#contracts" role="tab">
+                    <i class="fas fa-file-signature"></i> My Contracts
+                    <span class="badge badge-success">{{ contracts|length }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Available Products Tab -->
+            <div class="tab-pane fade show active" id="products" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4><i class="fas fa-tag"></i> Products Available for Bidding</h4>
+                    <div class="form-inline">
+                        <input type="text" id="productSearch" class="form-control" placeholder="🔍 Search products..." onkeyup="searchProducts()">
+                    </div>
+                </div>
+                
+                {% if available_products %}
+                    <div class="product-grid" id="productGrid">
+                        {% for product in available_products %}
+                            <div class="product-card fade-in product-item" 
+                                 data-name="{{ product.3|lower }} {{ product.4|default:''|lower }}"
+                                 data-farmer="{{ product.1|lower }}"
+                                 data-price="{{ product.7 }}">
+                                <div class="product-header">
+                                    <h3><i class="fas fa-seedling"></i> {{ product.3 }} {{ product.4|default:'' }}</h3>
+                                    <p><i class="fas fa-user"></i> Farmer: {{ product.1 }}</p>
+                                </div>
+                                <div class="product-body">
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-phone"></i> Contact:</span>
+                                        <span class="detail-value">{{ product.2|default:'N/A' }}</span>
+                                    </div>
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-weight"></i> Quantity:</span>
+                                        <span class="detail-value">{{ product.5 }} {{ product.6 }}</span>
+                                    </div>
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-tag"></i> Selling Price:</span>
+                                        <span class="detail-value price-tag">₹{{ product.7 }}/{{ product.6 }}</span>
+                                    </div>
+                                    {% if product.8 %}
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-chart-line"></i> Market Price:</span>
+                                        <span class="detail-value">₹{{ product.8 }}/{{ product.6 }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-map-marker-alt"></i> District:</span>
+                                        <span class="detail-value">{{ product.9 }}</span>
+                                    </div>
+                                    <div class="product-detail">
+                                        <span class="detail-label"><i class="fas fa-calendar"></i> Listed:</span>
+                                        <span class="detail-value">{{ product.10|date:'d M Y' }}</span>
+                                    </div>
+                                    {% if product.8 and product.7 < product.8 %}
+                                        <div class="text-center mt-3">
+                                            <span class="savings-badge">
+                                                <i class="fas fa-rupee-sign"></i> Save ₹{{ product.8|floatformat:2|add:product.7|floatformat:2 }}!
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="product-footer">
+                                    <button onclick="requestNegotiation({{ product.0 }}, '{{ product.3 }}', {{ product.7 }}, {{ product.5 }}, '{{ product.6 }}')" 
+                                            class="btn-negotiate">
+                                        <i class="fas fa-handshake"></i> Request Price Negotiation
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h4>No Products Available</h4>
+                        <p>There are currently no products available for bidding. Please check back later.</p>
+                        <a href="{% url 'AvailableProducts' %}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i> Browse All Products
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Active Negotiations Tab -->
+            <div class="tab-pane fade" id="active" role="tabpanel">
+                <h4 class="mb-4"><i class="fas fa-clock"></i> My Active Negotiations</h4>
+                
+                {% if active_negotiations %}
+                    <div class="row">
+                        {% for negotiation in active_negotiations %}
+                            <div class="col-md-6">
+                                <div class="negotiation-card">
+                                    <div class="negotiation-header">
+                                        <div>
+                                            <strong style="font-size: 16px;">
+                                                <i class="fas fa-seedling"></i> {{ negotiation.3 }}
+                                            </strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-user"></i> Farmer: {{ negotiation.2 }}
+                                            </small>
+                                        </div>
+                                        <span class="negotiation-status status-active">
+                                            <i class="fas fa-circle"></i> Active
+                                        </span>
+                                    </div>
+                                    <div class="negotiation-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <p><strong><i class="fas fa-hashtag"></i> Negotiation ID:</strong> #{{ negotiation.0 }}</p>
+                                                <p><strong><i class="fas fa-tag"></i> Current Price:</strong> ₹{{ negotiation.4 }}/{{ negotiation.6 }}</p>
+                                                <p><strong><i class="fas fa-weight"></i> Quantity:</strong> {{ negotiation.5 }} {{ negotiation.6 }}</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p><strong><i class="fas fa-clock"></i> Started:</strong> {{ negotiation.8|date:'d M Y' }}</p>
+                                                <p><strong><i class="fas fa-hourglass-end"></i> Expires:</strong> <span class="timer" data-expiry="{{ negotiation.9|date:'Y-m-d H:i:s' }}">{{ negotiation.9|date:'d M Y H:i' }}</span></p>
+                                                <p><strong><i class="fas fa-calendar"></i> Delivery:</strong> {{ negotiation.9|date:'d M Y' }}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if negotiation.10 %}
+                                            <div class="alert alert-info mt-2">
+                                                <i class="fas fa-info-circle"></i> Your last offer: ₹{{ negotiation.10 }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="btn-group mt-3 w-100">
+                                            <a href="{% url 'ViewNegotiationDetails' negotiation.0 %}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                            <button onclick="showCustomerCounterForm({{ negotiation.0 }})" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-hand-holding-usd"></i> Make Offer
+                                            </button>
+                                            <button onclick="cancelCustomerNegotiation({{ negotiation.0 }})" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Counter Offer Form -->
+                                        <div id="counter-form-{{ negotiation.0 }}" class="counter-offer-form">
+                                            <h6 class="mb-3"><i class="fas fa-hand-holding-usd"></i> Make Counter Offer</h6>
+                                            <form onsubmit="submitCustomerCounterOffer(event, {{ negotiation.0 }})">
+                                                <div class="form-group">
+                                                    <label>Your Offer (₹/{{ negotiation.6 }})</label>
+                                                    <input type="number" step="0.01" name="offered_price" class="form-control" 
+                                                           value="{{ negotiation.4 }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Quantity ({{ negotiation.6 }})</label>
+                                                    <input type="number" step="0.01" name="offered_quantity" class="form-control" 
+                                                           value="{{ negotiation.5 }}" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Message (Optional)</label>
+                                                    <textarea name="message" class="form-control" rows="2" 
+                                                              placeholder="Add a message to the farmer...">I would like to counter offer.</textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-block">
+                                                    <i class="fas fa-paper-plane"></i> Send Offer
+                                                </button>
+                                                <button type="button" onclick="hideCustomerCounterForm({{ negotiation.0 }})" 
+                                                        class="btn btn-secondary btn-block">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h4>No Active Negotiations</h4>
+                        <p>You don't have any active negotiations. Start bidding on products above!</p>
+                        <a href="#products" onclick="$('#products-tab').tab('show')" class="btn btn-primary">
+                            <i class="fas fa-store"></i> Browse Products
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Contracts Tab -->
+            <div class="tab-pane fade" id="contracts" role="tabpanel">
+                <h4 class="mb-4"><i class="fas fa-file-contract"></i> My Contracts & Completed Deals</h4>
+                
+                {% if contracts %}
+                    <div class="contracts-table table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Contract ID</th>
+                                    <th>Farmer</th>
+                                    <th>Crop</th>
+                                    <th>Final Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total Amount</th>
+                                    <th>Delivery Date</th>
+                                    <th>Status</th>
+                                    <th>Transaction ID</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contract in contracts %}
+                                    <tr>
+                                        <td><strong>#{{ contract.0 }}</strong></td>
+                                        <td>{{ contract.10 }}</td>
+                                        <td>{{ contract.11 }}</td>
+                                        <td>₹{{ contract.5 }}/{{ contract.7 }}</td>
+                                        <td>{{ contract.6 }} {{ contract.7 }}</td>
+                                        <td><strong>₹{{ contract.8 }}</strong></td>
+                                        <td>{{ contract.9|date:'d M Y' }}</td>
+                                        <td>
+                                            {% if contract.13 == 'completed' %}
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Completed</span>
+                                            {% elif contract.13 == 'delivered' %}
+                                                <span class="badge badge-info"><i class="fas fa-truck"></i> Delivered</span>
+                                            {% else %}
+                                                <span class="badge badge-warning"><i class="fas fa-clock"></i> {{ contract.13 }}</span>
+                                            {% endif %}
+                                            <br>
+                                            <small class="text-muted">
+                                                Payment: {{ contract.12 }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <code style="font-size: 11px;">{{ contract.15|default:'N/A' }}</code>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'ProductDetails' contract.2 %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-file-contract"></i>
+                        <h4>No Contracts Yet</h4>
+                        <p>You haven't made any contracts yet. Start negotiating with farmers!</p>
+                        <a href="#products" onclick="$('#products-tab').tab('show')" class="btn btn-primary">
+                            <i class="fas fa-gavel"></i> Start Bidding
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Negotiation Modal -->
+    <div class="modal fade" id="requestNegotiationModal" tabindex="-1" role="dialog" aria-labelledby="requestNegotiationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="requestNegotiationModalLabel">
+                        <i class="fas fa-handshake"></i> Request Price Negotiation
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="requestNegotiationForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label><i class="fas fa-box"></i> Product</label>
+                            <input type="text" id="product_name_display" class="form-control" readonly>
+                            <input type="hidden" name="product_id" id="request_product_id">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><i class="fas fa-tag"></i> Your Initial Offer (₹)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">₹</span>
+                                        </div>
+                                        <input type="number" step="0.01" name="initial_offer" id="initial_offer" 
+                                               class="form-control" required>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> Suggested: ₹<span id="suggested_price"></span>
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label><i class="fas fa-weight"></i> Quantity</label>
+                                    <input type="number" step="0.01" name="quantity" id="request_quantity" 
+                                           class="form-control" required>
+                                    <small class="text-muted">
+                                        <i class="fas fa-cube"></i> Available: <span id="available_quantity"></span> 
+                                        <span id="unit_display"></span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Preferred Delivery Date</label>
+                            <input type="date" name="delivery_date" id="delivery_date" class="form-control" required>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> Minimum 1 day from today
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-comment"></i> Message to Farmer (Optional)</label>
+                            <textarea name="message" class="form-control" rows="3" 
+                                      placeholder="Add any specific requirements or message to the farmer..."></textarea>
+                        </div>
+                    </form>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>How it works:</strong> Your negotiation request will be sent to the farmer. 
+                        They will review your offer and can accept, reject, or make a counter offer. 
+                        You'll be notified when they respond.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitRequestNegotiation()" id="submitRequestBtn">
+                        <i class="fas fa-paper-plane"></i> Send Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token Setup -->
+    <script>
+        // CSRF token setup for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+        
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        
+        // Timer update function
+        function updateTimers() {
+            $('.timer').each(function() {
+                const expiryTime = new Date($(this).data('expiry')).getTime();
+                const now = new Date().getTime();
+                const distance = expiryTime - now;
+                
+                if (distance < 0) {
+                    $(this).html('Expired').addClass('text-danger');
+                } else {
+                    const hours = Math.floor(distance / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    $(this).html(`${hours}h ${minutes}m ${seconds}s`);
+                }
+            });
+        }
+        
+        setInterval(updateTimers, 1000);
+        
+        // Search products function
+        function searchProducts() {
+            const searchText = $('#productSearch').val().toLowerCase();
+            
+            $('.product-item').each(function() {
+                const productName = $(this).data('name') || '';
+                const farmerName = $(this).data('farmer') || '';
+                const price = $(this).data('price') || '';
+                
+                if (productName.includes(searchText) || 
+                    farmerName.includes(searchText) || 
+                    price.toString().includes(searchText)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+        
+        // Request Negotiation Functions
+        function requestNegotiation(productId, cropName, price, quantity, unit) {
+            console.log("Requesting negotiation for product:", productId);
+            
+            $('#request_product_id').val(productId);
+            $('#product_name_display').val(cropName + ' - Current: ₹' + price + '/' + unit);
+            
+            const suggestedPrice = (price * 0.9).toFixed(2);
+            $('#initial_offer').val(suggestedPrice);
+            $('#suggested_price').text(suggestedPrice);
+            
+            const defaultQty = Math.min(1, quantity);
+            $('#request_quantity').val(defaultQty);
+            $('#available_quantity').text(quantity);
+            $('#unit_display').text(unit);
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            $('#delivery_date').val(tomorrowStr);
+            $('#delivery_date').attr('min', tomorrowStr);
+            
+            $('#requestNegotiationModal').modal('show');
+        }
+        
+        function submitRequestNegotiation() {
+            console.log("Submitting negotiation request...");
+            
+            const $btn = $('#submitRequestBtn');
+            
+            const formData = {
+                product_id: $('#request_product_id').val(),
+                initial_offer: $('#initial_offer').val(),
+                quantity: $('#request_quantity').val(),
+                delivery_date: $('#delivery_date').val(),
+                message: $('textarea[name="message"]').val() || 'Initial offer from customer'
+            };
+            
+            console.log("Form data:", formData);
+            
+            if (!formData.product_id || !formData.initial_offer || !formData.quantity || !formData.delivery_date) {
+                alert('❌ Please fill all required fields');
+                return;
+            }
+            
+            $btn.prop('disabled', true).html('<span class="spinner"></span> Sending...');
+            
+            $.ajax({
+                url: '/RequestNegotiation/',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    console.log("Response:", response);
+                    if (response.success) {
+                        alert('✅ ' + response.message);
+                        $('#requestNegotiationModal').modal('hide');
+                        $('#requestNegotiationForm')[0].reset();
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        if (response.negotiation_id) {
+                            alert('⚠️ ' + response.message + '\nRedirecting to negotiation details...');
+                            window.location.href = '/ViewNegotiationDetails/' + response.negotiation_id + '/';
+                        } else {
+                            alert('❌ Error: ' + response.message);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    console.error("Response:", xhr.responseText);
+                    let errorMsg = 'Request failed: ' + error;
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMsg = response.message;
+                        }
+                    } catch(e) {}
+                    alert('❌ ' + errorMsg);
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Request');
+                }
+            });
+        }
+        
+        // Customer Counter Offer Functions
+        function showCustomerCounterForm(negotiationId) {
+            $('.counter-offer-form').removeClass('show');
+            $('#counter-form-' + negotiationId).addClass('show');
+        }
+        
+        function hideCustomerCounterForm(negotiationId) {
+            $('#counter-form-' + negotiationId).removeClass('show');
+        }
+        
+        function submitCustomerCounterOffer(event, negotiationId) {
+            event.preventDefault();
+            
+            const form = $('#counter-form-' + negotiationId + ' form');
+            const $btn = form.find('button[type="submit"]');
+            
+            const formData = {
+                negotiation_id: negotiationId,
+                offered_price: form.find('input[name="offered_price"]').val(),
+                offered_quantity: form.find('input[name="offered_quantity"]').val(),
+                message: form.find('textarea[name="message"]').val() || 'Counter offer from customer'
+            };
+            
+            if (!formData.offered_price || !formData.offered_quantity) {
+                alert('❌ Please enter both price and quantity');
+                return;
+            }
+            
+            $btn.prop('disabled', true).html('<span class="spinner"></span> Sending...');
+            
+            $.ajax({
+                url: '/CustomerCounterOffer/',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('✅ Counter offer sent successfully!');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                    alert('❌ Failed to send offer: ' + error);
+                },
+                complete: function() {
+                    $btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send Offer');
+                }
+            });
+        }
+        
+        function cancelCustomerNegotiation(negotiationId) {
+            if (confirm('⚠️ Are you sure you want to cancel this negotiation?')) {
+                const reason = prompt('Reason for cancellation (optional):');
+                
+                $.ajax({
+                    url: '/CancelNegotiation/',
+                    type: 'POST',
+                    data: {
+                        negotiation_id: negotiationId,
+                        reason: reason || 'Cancelled by customer'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ Negotiation cancelled successfully');
+                            location.reload();
+                        } else {
+                            alert('❌ Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('❌ Failed to cancel negotiation: ' + error);
+                    }
+                });
+            }
+        }
+        
+        // Check for notifications on page load
+        $(document).ready(function() {
+            checkCustomerNotifications();
+            
+            // Reset modal on close
+            $('#requestNegotiationModal').on('hidden.bs.modal', function() {
+                $('#requestNegotiationForm')[0].reset();
+            });
+            
+            // Initialize timers
+            updateTimers();
+            
+            // Smooth scroll for anchor links
+            $('a[href*="#"]').on('click', function(e) {
+                if (this.hash !== '') {
+                    e.preventDefault();
+                    const hash = this.hash;
+                    $('html, body').animate({
+                        scrollTop: $(hash).offset().top - 100
+                    }, 800);
+                }
+            });
+        });
+        
+        function checkCustomerNotifications() {
+            $.ajax({
+                url: '/GetCustomerNotifications/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.notifications && response.notifications.length > 0) {
+                        let notificationHtml = '<strong><i class="fas fa-bell"></i> Notifications:</strong><ul class="mb-0">';
+                        response.notifications.forEach(function(n) {
+                            notificationHtml += '<li>' + n[2] + ' <small class="text-muted">' + n[3] + '</small></li>';
+                        });
+                        notificationHtml += '</ul>';
+                        $('#notificationContent').html(notificationHtml);
+                        $('#notificationArea').addClass('show');
+                        
+                        // Auto hide after 10 seconds
+                        setTimeout(function() {
+                            $('#notificationArea').removeClass('show');
+                        }, 10000);
+                    }
+                }
+            });
+        }
+        
+        // Accept Farmer Offer Function
+        function acceptFarmerOffer(negotiationId) {
+            if (confirm('✅ Accept farmer\'s offer? This will create a binding contract.')) {
+                $.ajax({
+                    url: '/AcceptFarmerOffer/',
+                    type: 'POST',
+                    data: { negotiation_id: negotiationId },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ Offer accepted! Contract created.\nTransaction ID: ' + response.transaction_id);
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            alert('❌ Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('❌ Failed to accept offer: ' + error);
+                    }
+                });
+            }
+        }
+    </script>
+
+    <!-- Loading Spinner CSS -->
+    <style>
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 5px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #dc3545;
+        }
+        
+        .btn-negotiate {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-negotiate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .counter-offer-form {
+            transition: all 0.3s ease;
+        }
+        
+        .notification-area {
+            transition: all 0.3s ease;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn-group .btn {
+            margin: 0 2px;
+        }
+    </style>
+</body>
+</html>

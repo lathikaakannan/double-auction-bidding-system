@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Products</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar { background-color: #4CAF50; overflow: hidden; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .container { padding: 20px; }
+        .card { margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .filter-section { background: white; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .best-price { background-color: #90EE90; }
+        .price-savings { color: #28a745; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'CustomerDashboard' %}">Dashboard</a>
+        <a href="{% url 'AvailableProducts' %}" style="background-color: #45a049;">Available Products</a>
+        <a href="{% url 'MyOrders' %}">My Orders</a>
+        <a href="{% url 'CustomerLogin' %}" style="float:right;">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2>Available Products</h2>
+        
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Filter by Crop:</label>
+                    {{ filter_dropdown|safe }}
+                </div>
+                <div class="col-md-6">
+                    <button onclick="resetFilter()" class="btn btn-secondary mt-4">Reset Filter</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="products-container">
+            {% if products %}
+                {{ products|safe }}
+            {% else %}
+                <div class="alert alert-info">No products available at the moment.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function filterProducts() {
+            var crop = document.getElementById('cropFilter').value;
+            window.location.href = '{% url "AvailableProducts" %}?crop=' + encodeURIComponent(crop);
+        }
+        
+        function resetFilter() {
+            window.location.href = '{% url "AvailableProducts" %}';
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

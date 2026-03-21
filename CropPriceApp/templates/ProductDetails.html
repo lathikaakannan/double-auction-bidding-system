@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar { background-color: #4CAF50; overflow: hidden; }
+        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
+        .navbar a:hover { background-color: #ddd; color: black; }
+        .container { padding: 20px; }
+        .product-detail { background: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .price { font-size: 24px; color: #4CAF50; font-weight: bold; }
+        .predicted-price { color: #666; text-decoration: line-through; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{% url 'CustomerDashboard' %}">Dashboard</a>
+        <a href="{% url 'AvailableProducts' %}">Available Products</a>
+        <a href="{% url 'MyOrders' %}">My Orders</a>
+        <a href="{% url 'CustomerLogin' %}" style="float:right;">Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="product-detail">
+            <h2>{{ product.crop }} {% if product.variety %}- {{ product.variety }}{% endif %}</h2>
+            <hr>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Farmer:</strong> {{ product.farmer }}</p>
+                    <p><strong>Contact:</strong> {{ product.contact }}</p>
+                    <p><strong>District:</strong> {{ product.district }}</p>
+                    <p><strong>Available Quantity:</strong> {{ product.quantity }} {{ product.unit }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Selling Price:</strong> <span class="price">₹{{ product.selling_price }}/{{ product.unit }}</span></p>
+                    <p><strong>Predicted Market Price:</strong> <span class="predicted-price">₹{{ product.predicted_price }}/{{ product.unit }}</span></p>
+                    <p><strong>Listed on:</strong> {{ product.listing_date }}</p>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <h4>Place Order</h4>
+            <form id="orderForm" onsubmit="placeOrder(event)">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                <input type="hidden" name="customer_email" value="{{ customer_email }}">
+                <input type="hidden" name="customer_name" value="{{ customer_name }}">
+                
+                <div class="form-group">
+                    <label>Customer Name:</label>
+                    <input type="text" name="customer_name_display" class="form-control" value="{{ customer_name }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Contact Number:</label>
+                    <input type="text" name="customer_contact" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Delivery Address:</label>
+                    <textarea name="customer_address" class="form-control" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quantity ({{ product.unit }}):</label>
+                    <input type="number" name="quantity" class="form-control" min="0.01" max="{{ product.quantity }}" step="0.01" required>
+                    <small class="text-muted">Available: {{ product.quantity }} {{ product.unit }}</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Delivery Date:</label>
+                    <input type="date" name="delivery_date" class="form-control" min="{% now 'Y-m-d' %}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Total Amount:</label>
+                    <div id="totalAmount" class="h4">₹0.00</div>
+                </div>
+                
+                <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+                <a href="{% url 'AvailableProducts' %}" class="btn btn-secondary btn-lg">Back to Products</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('input[name="quantity"]').addEventListener('input', function() {
+            var quantity = parseFloat(this.value) || 0;
+            var price = parseFloat('{{ product.selling_price }}');
+            var total = quantity * price;
+            document.getElementById('totalAmount').innerHTML = '₹' + total.toFixed(2);
+        });
+        
+        function placeOrder(event) {
+            event.preventDefault();
+            
+            var formData = {
+                product_id: document.querySelector('input[name="product_id"]').value,
+                customer_email: document.querySelector('input[name="customer_email"]').value,
+                customer_name: document.querySelector('input[name="customer_name"]').value,
+                customer_contact: document.querySelector('input[name="customer_contact"]').value,
+                customer_address: document.querySelector('textarea[name="customer_address"]').value,
+                quantity: document.querySelector('input[name="quantity"]').value,
+                delivery_date: document.querySelector('input[name="delivery_date"]').value,
+                csrfmiddlewaretoken: document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            };
+            
+            $.ajax({
+                url: '{% url "PlaceOrderAction" %}',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    alert(response);
+                    window.location.href = '{% url "MyOrders" %}';
+                },
+                error: function(xhr, status, error) {
+                    alert('Error placing order: ' + error);
+                }
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
