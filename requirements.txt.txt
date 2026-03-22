@@ -1,4 +1,4 @@
 django
 gunicorn
 pymysql
-pandas
+pandas==2.1.1
